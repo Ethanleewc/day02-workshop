@@ -1,38 +1,74 @@
 package prog;
 
-import cart.Apple;
-import cart.Item;
-import cart.Orange;
+import java.io.Console;
+
+import cart.ShoppingCart;
 
 public class Main {
 
+    // This is how you declare constant
+    public static final String CHECKOUT = "checkout";
+    public static final String ADD = "add";
+    public static final String REMOVE = "remove";
+    public static final String LIST = "list";
+
     public static void main(String[] args) {
-        //Item apple = new Item("apple", "Apple");
-        //Item orange = new Item("orange", "Orange");
+        // Get an instance of Console
+        Console cons = System.console();
 
-        //apple.setPrice(.5f);
-        //apple.setQuantity(10);
+        // Boolean to control the command line
+        Boolean stop = false;
 
-        //orange.setPrice(.5f);
-        //orange.setQuantity(10);
+        // Create an instance of ShoppingCart
+        ShoppingCart shoppingCart = new ShoppingCart();
 
-        Apple apple = new Apple();
-        apple.setType("washington");
+        while (!stop) {
+            String line = cons.readLine("> ");
+            String[] terms = line.trim().split(" ");
 
-        Orange orange = new Orange();
+            switch (terms[0]) {
+                // checkout or checkout .03
+                case CHECKOUT:
+                    Float discount = 0f;
+                    // Check if discount is applied
+                    if (terms.length > 0)
+                        discount = Float.parseFloat(terms[1]);
+                    shoppingCart.calculate(discount);
+                    stop = true;
+                    break;
 
-        System.out.printf("apple code: %s\n", apple.getCode());
-        System.out.printf("orange code: %s\n", orange.getCode());
+                // add apple quantity price
+                case ADD:
+                    String item = terms[1];
+                    Integer quantity = Integer.parseInt(terms[2]);
+                    Float price = Float.parseFloat(terms[3]);
+                    if (shoppingCart.addToCart(item, quantity, price))
+                        System.out.printf("%s added to your shopping cart\n", item);
+                    else
+                        System.err.printf("%s is not in our inventory.\n", item);
+                    break;
 
-        Item item = apple;
-        System.out.printf("item code: %s\n", item.getCode());
+                // remove 3
+                case REMOVE:
+                    Integer index = Integer.parseInt(terms[1]);
+                    if (shoppingCart.removeFromCart(index))
+                        System.out.println("Item removed from shopping cart");
+                    else
+                        System.out.println("Cannot find item in the shopping cart");
+                    break;
 
-        Apple washington = (Apple)item;
-        System.out.printf("washington code: %s\n", washington.getCode());
+                // list
+                case LIST:
+                    shoppingCart.listContents();
+                    break;
 
-        System.out.printf("is item an Orange? %b\n", item instanceof Orange);
-        if (item instanceof Orange)
-            orange = (Orange)item;
+                default:
+                    System.out.printf("Unknown command: %s\n", terms[0]);
+            }
+            System.out.println();
+        }
+
+        System.out.println("Thank you for shopping with us");
     }
     
 }
